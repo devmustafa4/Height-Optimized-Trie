@@ -150,6 +150,77 @@ class Optimized_Trie
         }
     }
 
+    // a function to print values of all nodes starting with a given string in the trie
+    void printchildren(string prefix)
+    {
+        // temp is the node that contains the prefix
+        Node* temp = root;
+        int word_i =0;
+       
+        // find the node where prefix exists
+        while(temp != NULL)
+        {
+            int temp_i = 0;
+            
+            // loop through every character in the current node 
+            while (temp->identifier[temp_i] != '\0'&&prefix[word_i] != '\0')
+            {
+                if (temp->identifier[temp_i] == prefix[word_i])
+                {
+                    temp_i++;
+                    word_i++;
+                }
+                else
+                {
+                    cout<<prefix<<" does not exists"<<endl;
+                    return;
+                }       
+            }
+            
+            // if the word at i'th index is last character of word then the word is found
+            if (prefix[word_i] == '\0')
+            {
+                // the node with the prefix has been found now 
+                // now we have to print all children of that node
+                printChildNodes(temp);
+                return;
+            }
+            // if the word at i'th index is not the last character of word
+            // then check if the node has a child at ith index
+            if (temp->children[prefix[word_i] - 'a'] == NULL)
+            {
+                // if there is no node at ith index then the word does not exists
+                cout<<prefix<<" does not exists"<<endl;          
+                return;
+            }
+            else
+                //if there is a node at ith index then search for the remaining word in the node
+                temp = temp -> children[prefix[word_i]-'a'];
+        }
+    }
+
+    void printChildNodes(Node* node)
+    {
+        // if the node is NULL return
+        if (node == NULL)
+        {
+            cout<<"The given node is NULL"<<endl;
+            return;
+        }
+
+        if (node->data != 0)
+            cout<<node->data<<endl;
+        
+        // print all childrens of the node
+        for(int i = 0; i<26;i++)
+        {
+            if (node->children[i] != NULL)
+            {
+                printChildNodes(node->children[i]);
+            }
+        }
+    }
+
 };
 
 int main ()
@@ -158,13 +229,15 @@ int main ()
     
     trie.insert("kesy", 1);
     trie.insert("acha", 2);
-    trie.insert("acha git", 3);
-    trie.insert("achjjj",6);
+    trie.insert("achagit", 3);
+    trie.insert("achaajjj",6);
+    trie.insert("abcd", 11);
 
-    trie.search("kesy");
-    trie.search("acha");
-    trie.search("acha git");
-    trie.search("achjjj");
-    trie.search("bye");
+    trie.printchildren("a");
+    // trie.search("kesy");
+    // trie.search("acha");
+    // trie.search("acha git");
+    // trie.search("achjjj");
+    // trie.search("bye");
     return 0;
 }
