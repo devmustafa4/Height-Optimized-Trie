@@ -1,40 +1,34 @@
 #include <iostream>
+#include <list>
+#include <unordered_map>
+using namespace std;
 
-using std::string;
-using std::cout;
-using std::endl;
-
-class Optimized_Trie 
+template <class T>
+class OptimizedTrie 
 {
     class Node 
     {
         public:
             string identifier;
-            int data;
-            Node* children[26];
-
-            Node() {       
-                for (int i=0; i<26;i++)
-                {
-                    children[i] = NULL;
-                }
-            }
+            T* data;
+            unordered_map<char, Node*> children;
     };
 
     Node* root = NULL;
 
     public:
 
-    Optimized_Trie()
+    OptimizedTrie()
     {
         // initialize the root node
         root = new Node();
-        root->data = 0;
+        root->data = NULL;
         root->identifier = "";
     }
 
-    void insert(string word, int data)
+    void insert(string word, T data)
     {
+        T* dataptr = new T(data); 
         int i =0;
         // find common substring split, if found 
         // else if identifier length < word then go to next child 
@@ -64,42 +58,42 @@ class Optimized_Trie
                     //changing the identifier of prev node
                     temp->identifier = temp->identifier.substr( temp_i );
 
-                    common_node->children[ temp->identifier[0] - 'a'] = temp;
+                    common_node->children[temp->identifier[0]] = temp;
                     // if the word has some non matching characters
                     if (word[i] != '\0')
                     {
                         // creating separate node to store the new data
                         Node* node2 = new Node();
                         node2->identifier = word.substr(i);
-                        node2->data = data;
+                        node2->data = dataptr;
 
                         // building the link between node with data and common node
-                        common_node->children[word[i]-'a'] = node2;
+                        common_node->children[word[i]] = node2;
 
                         // setting the parent of common node
-                        prev->children[common_node->identifier[0]-'a'] = common_node;
+                        prev->children[common_node->identifier[0]] = common_node;
                     }
                     // if the word only consists of matching characters
                     else
                     {
-                          common_node->data = data;
+                        common_node->data = dataptr;
                     }
                     return;
                 }
             }
-            if (temp->children[word[i]- 'a'] == NULL)
+            if (temp->children.find(word[i]) == temp->children.end())
             {
                 Node* newNode = new Node();
                 newNode->identifier = word.substr(i, word.length());
-                newNode->data = data;
+                newNode->data = dataptr;
 
-                temp->children[word[i]-'a'] = newNode;
+                temp->children[word[i]] = newNode;
                 break;
             }
             else
             {
                 prev = temp;
-                temp = temp->children[word[i]-'a'];
+                temp = temp->children[word[i]];
             }
         }
     }
@@ -133,12 +127,12 @@ class Optimized_Trie
             // if the word at i'th index is last character of word then the word is found
             if (word[word_i] == '\0')
             {
-                cout<<"the data in the "<<word<<" is "<<temp->data<<endl;
+                cout<<"the data in the "<<word<<" is "<<*temp->data<<endl;
                 return;
             }
             // if the word at i'th index is not the last character of word
             // then check if the node has a child at ith index
-            if (temp->children[word[word_i] - 'a'] == NULL)
+            if (temp->children.find(word[word_i]) == temp->children.end())
             {
                 // if there is no node at ith index then the word does not exists
                 cout<<word<<" does not exists"<<endl;          
@@ -146,12 +140,12 @@ class Optimized_Trie
             }
             else
                 //if there is a node at ith index then search for the remaining word in the node
-                temp = temp -> children[word[word_i]-'a'];
+                temp = temp -> children[word[word_i]] -> second;
         }
     }
 
     // a function to print values of all nodes starting with a given string in the trie
-    void printchildren(string prefix)
+    void printChildren(string prefix)
     {
         // temp is the node that contains the prefix
         Node* temp = root;
@@ -187,7 +181,7 @@ class Optimized_Trie
             }
             // if the word at i'th index is not the last character of word
             // then check if the node has a child at ith index
-            if (temp->children[prefix[word_i] - 'a'] == NULL)
+            if (temp->children.find(prefix[word_i]) == temp->children.end())
             {
                 // if there is no node at ith index then the word does not exists
                 cout<<prefix<<" does not exists"<<endl;          
@@ -195,7 +189,7 @@ class Optimized_Trie
             }
             else
                 //if there is a node at ith index then search for the remaining word in the node
-                temp = temp -> children[prefix[word_i]-'a'];
+                temp = temp -> children[prefix[word_i]];
         }
     }
 
@@ -208,36 +202,26 @@ class Optimized_Trie
             return;
         }
 
-        if (node->data != 0)
-            cout<<node->data<<endl;
-        
-        // print all childrens of the node
-        for(int i = 0; i<26;i++)
-        {
-            if (node->children[i] != NULL)
-            {
-                printChildNodes(node->children[i]);
-            }
-        }
+        if (node->data != NULL)
+            cout<<*node->data<<endl;
+            //    iterating over all value of umap
+    
+        for (auto itr : node->children)
+            printChildNodes(itr.second);
     }
 
 };
 
 int main ()
 {
-    Optimized_Trie trie;
+    OptimizedTrie<string> trie;
     
-    trie.insert("kesy", 1);
-    trie.insert("acha", 2);
-    trie.insert("achagit", 3);
-    trie.insert("achaajjj",6);
-    trie.insert("abcd", 11);
+    trie.insert("hello", "1asdf");
+    trie.insert("heloooo", "2asdf");
+    trie.insert("hoooo", "3asdf");
+    trie.insert("okayyyy","6asdf");
+    trie.insert("okie", "11asdf");
 
-    trie.printchildren("a");
-    // trie.search("kesy");
-    // trie.search("acha");
-    // trie.search("acha git");
-    // trie.search("achjjj");
-    // trie.search("bye");
+    trie.printChildren("he");
     return 0;
 }
