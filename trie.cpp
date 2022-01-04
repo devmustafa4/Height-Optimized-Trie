@@ -1,6 +1,6 @@
 #include <iostream>
 #include <list>
-#include <unordered_map>
+#include <map>
 using namespace std;
 
 template <class T>
@@ -11,7 +11,7 @@ class OptimizedTrie
         public:
             string identifier;
             T* data;
-            unordered_map<char, Node*> children;
+            map<char, Node*> children;
     };
 
     Node* root = NULL;
@@ -216,12 +216,12 @@ int main ()
 {
     OptimizedTrie<string> trie;
     
-    trie.insert("hello", "1asdf");
+    trie.insert("he?:123llo", "1asdf");
     trie.insert("heloooo", "2asdf");
     trie.insert("hoooo", "3asdf");
     trie.insert("okayyyy","6asdf");
     trie.insert("okie", "11asdf");
 
-    trie.printChildren("he");
+    trie.printChildren("he?");
     return 0;
 }
