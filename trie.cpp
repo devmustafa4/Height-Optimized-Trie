@@ -98,28 +98,90 @@ class OptimizedTrie
         }
     }
 
-
-
-    void search(string word)
+    Node* getNode(string word)
     {
+        // returns the node with the identifier
+
         int word_i = 0;
         Node* temp = root;
         
-        // if temp is NULL then don't continue
+        // temp variable to traverse the nodes in trie
         while(temp != NULL)
         {
             int temp_i = 0;
-            // loop through every character in the current node 
+            // compare corresponding characters of word and identifier
             while (temp->identifier[temp_i] != '\0')
             {
+                // if the current character is same then increment variable to compare next character
                 if (temp->identifier[temp_i] == word[word_i])
                 {
                     temp_i++;
                     word_i++;
                 }
+                // if at any point the corresponding characters do not match then the word is not present in the trie
                 else
                 {
-                    cout<<word<<" does not exists"<<endl;
+                    return NULL;
+                }       
+            }
+
+            // if the word at i'th index is last character of word then the word is found
+            if (word[word_i] == '\0')
+            {
+                if (temp->data != NULL)
+                    return temp;
+                else
+                    return NULL;
+            }
+            // if the word at i'th index is not the last character of word
+            // then find the node that begins with the character in the children of the current node
+            if (temp->children.find(word[word_i]) == temp->children.end())
+            {
+                // if there is no node at ith index then the word does not exists
+                return NULL;
+            }
+            else
+                //if there is a node at ith index then search for the remaining word in the child node
+                temp = temp -> children[word[word_i]];
+        
+        }
+        return NULL;
+    }
+
+    void search(string word)
+    {
+        Node* node = getNode(word);
+        if (node != NULL)
+        {
+            // if the node exists but does not contain any data then 
+            cout<<"The data stored in node with key "<<word<<" is "<<*node->data<<endl;
+        }   
+    }
+
+    void Delete(string word)
+    {
+        // returns the node with the identifier
+
+        int word_i = 0;
+        Node* prev = NULL;
+        Node* temp = root;
+        
+        // temp variable to traverse the nodes in trie
+        while(temp != NULL)
+        {
+            int temp_i = 0;
+            // compare corresponding characters of word and identifier
+            while (temp->identifier[temp_i] != '\0')
+            {
+                // if the current character is same then increment variable to compare next character
+                if (temp->identifier[temp_i] == word[word_i])
+                {
+                    temp_i++;
+                    word_i++;
+                }
+                // if at any point the corresponding characters do not match then the word is not present in the trie
+                else
+                {
                     return;
                 }       
             }
@@ -127,21 +189,39 @@ class OptimizedTrie
             // if the word at i'th index is last character of word then the word is found
             if (word[word_i] == '\0')
             {
-                cout<<"the data in the "<<word<<" is "<<*temp->data<<endl;
-                return;
+                if (temp->data != NULL)
+                    break;
+                else
+                    return;
             }
             // if the word at i'th index is not the last character of word
-            // then check if the node has a child at ith index
+            // then find the node that begins with the character in the children of the current node
             if (temp->children.find(word[word_i]) == temp->children.end())
             {
                 // if there is no node at ith index then the word does not exists
-                cout<<word<<" does not exists"<<endl;          
                 return;
             }
             else
-                //if there is a node at ith index then search for the remaining word in the node
-                temp = temp -> children[word[word_i]] -> second;
+            {
+                prev = temp;
+                //if there is a node at that begins with character at word_i then search for the remaining word in that child node
+                temp = temp -> children[word[word_i]];
+            }
         }
+    
+        cout<<"deleting the node with key "<<word<<endl;
+        
+        // if the node has children then delete its data
+        if (temp->children.size() > 0)
+        {
+            temp->data = NULL;
+        }
+        // if the node has no child then delete the node
+        else
+        {
+            prev->children.erase(temp->identifier[0]);
+        }
+        
     }
 
     // a function to print values of all nodes starting with a given string in the trie
@@ -166,7 +246,6 @@ class OptimizedTrie
                 }
                 else
                 {
-                    cout<<prefix<<" does not exists"<<endl;
                     return;
                 }       
             }
@@ -183,8 +262,7 @@ class OptimizedTrie
             // then check if the node has a child at ith index
             if (temp->children.find(prefix[word_i]) == temp->children.end())
             {
-                // if there is no node at ith index then the word does not exists
-                cout<<prefix<<" does not exists"<<endl;          
+                // if there is no node at ith index then the word does not exists    
                 return;
             }
             else
@@ -216,12 +294,22 @@ int main ()
 {
     OptimizedTrie<string> trie;
     
-    trie.insert("he?:123llo", "1asdf");
-    trie.insert("heloooo", "2asdf");
-    trie.insert("hoooo", "3asdf");
-    trie.insert("okayyyy","6asdf");
-    trie.insert("okie", "11asdf");
+    trie.insert("helo", "helo");
+    trie.insert("heloooo", "heloo");
+    trie.insert("hi", "hi");
+    // trie.insert("hel", "hel");
+    trie.insert("hello", "hello");
+    trie.insert("hey", "hey");
 
-    trie.printChildren("he?");
+    // trie.search("he"); // prints nothing
+    // trie.search("hey"); // prints that the node has 5 stored in it
+    cout<<"\nbefore deleting: "<<endl;
+    trie.printChildren("h");
+
+    trie.Delete("hello");
+
+    cout<<"\nafter deleting: "<<endl;
+    trie.printChildren("h");
+
     return 0;
 }
